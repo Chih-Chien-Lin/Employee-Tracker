@@ -161,9 +161,8 @@ function AddEmployee() {
                 var queryAdd = "INSERT INTO employee (first_name, last_name, role_id) VALUE (?,?,?)";
                 connection.query(queryAdd,[answer.first_name, answer.last_name, roleID],function(err,result){
                     if (err) throw err;
-                    console.log(result);
-                    displayEmployees()
                     runSearch();
+                    displayEmployees()
                 })
             })
 
@@ -171,7 +170,42 @@ function AddEmployee() {
 }
 // function to Remove Employee
 function RemoveEmployee() {
-
+    inquirer
+    .prompt([
+        {
+            name: "first_name",
+            type: "input",
+            message: "What's the first name of employee who was fired/quit?"
+        },
+        {
+            name: "last_name",
+            type: "input",
+            message: "What's the last name of employee who was fired/quit?"
+        }
+    ])
+    .then(function (answer) {
+        var queryValidateRole = "SELECT * FROM employee";
+            connection.query(queryValidateRole, function (err, res) {
+                if(err) throw err;
+                let employeeID = 0;
+                res.forEach(employee => { 
+                    console.log("ans_first: ",answer.first_name);
+                    console.log("emp.first: ",employee.first_name);
+                    console.log("ans_las: ",answer.last_name);
+                    console.log("emp_last: ",employee.last_name,"-------");
+                    if(answer.first_name === employee.first_name && answer.last_name === employee.last_name){
+                        console.log("Jump into here")
+                        employeeID = employee.employee_id;
+                    }
+                });
+                // console.log("empID: ",employeeID);
+                var queryDelete = "DELETE FROM employee WHERE employee_id = ?";
+                connection.query(queryDelete,employeeID,function(err,result){
+                    if (err) throw err;
+                    displayEmployees();
+                });
+            });
+    });
 }
 // function to Update Employee Role
 function UpdateRole() {
