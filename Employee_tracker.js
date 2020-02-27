@@ -18,6 +18,7 @@ var connection = mysql.createConnection({
 connection.connect(function (err) {
     if (err) throw err;
     console.log("connected as id " + connection.threadId);
+
     runSearch();
 });
 
@@ -29,14 +30,14 @@ function runSearch() {
             type: "rawlist",
             message: "What would you like to do?",
             choices: [
+                "test",
                 "View All Employees",
                 "View All Employees by Department",
                 "View All Employees by Manager",
                 "Add Employee",
                 "Remove Employee",
                 "Update Employee Role",
-                "Update Employee Manager",
-                "exit"
+                "Update Employee Manager"
             ]
         })
         .then(function (answer) {
@@ -68,18 +69,22 @@ function runSearch() {
                 case "Update Employee Manager":
                     UpdateManager();
                     break;
+
+                case "test":
+                    test();
+                    break
             }
         });
 }
 // function to View All Employees
-function displayEmployees(){
+function displayEmployees() {
     var query = "SELECT employee_id, first_name, last_name, title, department_name, salary, manager_id ";
-    query +="FROM employee ";
-    query +="LEFT JOIN role ON employee.role_id = role.role_id ";
-    query +="LEFT JOIN department ON role.department_id = department.department_id ";
-    query +="ORDER BY employee.employee_id"
+    query += "FROM employee ";
+    query += "LEFT JOIN role ON employee.role_id = role.role_id ";
+    query += "LEFT JOIN department ON role.department_id = department.department_id ";
+    query += "ORDER BY employee.employee_id"
     // console.log(query);
-    connection.query(query, function(err, res) {
+    connection.query(query, function (err, res) {
         if (err) throw err;
         console.table(res);
         runSearch();
@@ -87,28 +92,28 @@ function displayEmployees(){
 }
 
 // function to View All Employees by Department
-function displayEmployeesDepartment(){
+function displayEmployeesDepartment() {
     var query = "SELECT employee_id, first_name, last_name, title, department_name, salary, manager_id ";
-    query +="FROM employee ";
-    query +="LEFT JOIN role ON employee.role_id = role.role_id ";
-    query +="LEFT JOIN department ON role.department_id = department.department_id ";
-    query +="ORDER BY department_name"
+    query += "FROM employee ";
+    query += "LEFT JOIN role ON employee.role_id = role.role_id ";
+    query += "LEFT JOIN department ON role.department_id = department.department_id ";
+    query += "ORDER BY department_name"
     // console.log(query);
-    connection.query(query, function(err, res) {
+    connection.query(query, function (err, res) {
         if (err) throw err;
         console.table(res);
         runSearch();
     })
 }
 // function to View All Employees by Manager
-function displayEmployeesManager(){
+function displayEmployeesManager() {
     var query = "SELECT employee_id, first_name, last_name, title, department_name, salary, manager_id ";
-    query +="FROM employee ";
-    query +="LEFT JOIN role ON employee.role_id = role.role_id ";
-    query +="LEFT JOIN department ON role.department_id = department.department_id ";
-    query +="ORDER BY manager_id"
+    query += "FROM employee ";
+    query += "LEFT JOIN role ON employee.role_id = role.role_id ";
+    query += "LEFT JOIN department ON role.department_id = department.department_id ";
+    query += "ORDER BY manager_id";
     // console.log(query);
-    connection.query(query, function(err, res) {
+    connection.query(query, function (err, res) {
         if (err) throw err;
         console.table(res);
         runSearch();
@@ -116,19 +121,72 @@ function displayEmployeesManager(){
 
 }
 // function to Add Employee
-function AddEmployee(){
+function AddEmployee() {
+    inquirer
+        .prompt([
+            {
+                name: "first_name",
+                type: "input",
+                message: "What's the new employee's first name?"
+            },
+            {
+                name: "last_name",
+                type: "input",
+                message: "What's the new employee's last name?"
+            },
+            {
+                name: "role",
+                type: "checkbox",
+                message: "What's the new employee's role?",
+                choices: [
+                    "Vice_President",
+                    "Engineer",
+                    "Doctor"
+                ]
+            }
+        ])
+        .then(function (answer) {
+            var queryValidateRole = "SELECT * FROM role";
+            connection.query(queryValidateRole, function (err, res) {
+                let roleID = 0;
+                if (err) throw err;
+                res.forEach(role => { 
+                    console.log("role title: ",role.title)
+                    console.log("answer.role ",answer.role)
+                    if(answer.role[0] === role.title){
+                        roleID = role.role_id;
+                    }
+                });
+                console.log("roleID: ",roleID);
+                var queryAdd = "INSERT INTO employee (first_name, last_name, role_id) VALUE (?,?,?)";
+                connection.query(queryAdd,[answer.first_name, answer.last_name, roleID],function(err,result){
+                    if (err) throw err;
+                    console.log(result);
+                    displayEmployees()
+                    runSearch();
+                })
+            })
 
+        });
 }
 // function to Remove Employee
-function RemoveEmployee(){
+function RemoveEmployee() {
 
 }
 // function to Update Employee Role
-function UpdateRole(){
+function UpdateRole() {
 
 }
 // function to Update Employee Manager
-function UpdateManager(){
+function UpdateManager() {
 
 }
 
+function test(){
+    var query = "SELECT * FROM role";
+    connection.query(query, function (err, res) {
+        if (err) throw err;
+        console.log("test: ",res[0].role_id)
+        runSearch()
+    });
+}
