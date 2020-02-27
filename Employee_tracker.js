@@ -88,7 +88,7 @@ function displayEmployees(){
 
 // function to View All Employees by Department
 function displayEmployeesDepartment(){
-    var query = "SELECT employee_id, first_name, last_name, department_name ";
+    var query = "SELECT employee_id, first_name, last_name, title, department_name, salary, manager_id ";
     query +="FROM employee ";
     query +="LEFT JOIN role ON employee.role_id = role.role_id ";
     query +="LEFT JOIN department ON role.department_id = department.department_id ";
@@ -102,6 +102,17 @@ function displayEmployeesDepartment(){
 }
 // function to View All Employees by Manager
 function displayEmployeesManager(){
+    var query = "SELECT employee_id, first_name, last_name, title, department_name, salary, manager_id ";
+    query +="FROM employee ";
+    query +="LEFT JOIN role ON employee.role_id = role.role_id ";
+    query +="LEFT JOIN department ON role.department_id = department.department_id ";
+    query +="ORDER BY manager_id"
+    // console.log(query);
+    connection.query(query, function(err, res) {
+        if (err) throw err;
+        console.table(res);
+        runSearch();
+    })
 
 }
 // function to Add Employee
