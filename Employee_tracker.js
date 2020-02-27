@@ -17,6 +17,7 @@ var connection = mysql.createConnection({
 
 connection.connect(function (err) {
     if (err) throw err;
+    console.log("connected as id " + connection.threadId);
     runSearch();
 });
 
@@ -34,7 +35,8 @@ function runSearch() {
                 "Add Employee",
                 "Remove Employee",
                 "Update Employee Role",
-                "Update Employee Manager"
+                "Update Employee Manager",
+                "exit"
             ]
         })
         .then(function (answer) {
@@ -71,13 +73,14 @@ function runSearch() {
 }
 // function to View All Employees
 function displayEmployees(){
-    var query = "SELECT employee.employee_id, employee.first_name, employee.last_name, position.title, department.department_name, position.salary, employee.manager_id ";
+    var query = "SELECT employee_id, first_name, last_name, title, department_name, salary, manager_id ";
     query +="FROM employee ";
-    query +="LEFT JOIN department ON employee.department_id = department.department_id ";
-    query +="LEFT JOIN position ON employee.role_id = position.role_id ";
+    query +="LEFT JOIN role ON employee.role_id = role.role_id ";
+    query +="LEFT JOIN department ON role.department_id = department.department_id ";
     query +="ORDER BY employee.employee_id"
-    console.log(query);
+    // console.log(query);
     connection.query(query, function(err, res) {
+        if (err) throw err;
         console.table(res);
         runSearch();
     })
@@ -85,7 +88,17 @@ function displayEmployees(){
 
 // function to View All Employees by Department
 function displayEmployeesDepartment(){
-
+    var query = "SELECT employee_id, first_name, last_name, department_name ";
+    query +="FROM employee ";
+    query +="LEFT JOIN role ON employee.role_id = role.role_id ";
+    query +="LEFT JOIN department ON role.department_id = department.department_id ";
+    query +="ORDER BY employee.employee_id"
+    // console.log(query);
+    connection.query(query, function(err, res) {
+        if (err) throw err;
+        console.table(res);
+        runSearch();
+    })
 }
 // function to View All Employees by Manager
 function displayEmployeesManager(){
@@ -107,3 +120,4 @@ function UpdateRole(){
 function UpdateManager(){
 
 }
+
