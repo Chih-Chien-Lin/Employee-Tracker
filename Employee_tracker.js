@@ -92,7 +92,7 @@ function displayEmployeesDepartment(){
     query +="FROM employee ";
     query +="LEFT JOIN role ON employee.role_id = role.role_id ";
     query +="LEFT JOIN department ON role.department_id = department.department_id ";
-    query +="ORDER BY employee.employee_id"
+    query +="ORDER BY department_name"
     // console.log(query);
     connection.query(query, function(err, res) {
         if (err) throw err;
