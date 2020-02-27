@@ -150,16 +150,16 @@ function AddEmployee() {
             connection.query(queryValidateRole, function (err, res) {
                 let roleID = 0;
                 if (err) throw err;
-                res.forEach(role => { 
-                    console.log("role title: ",role.title)
-                    console.log("answer.role ",answer.role)
-                    if(answer.role[0] === role.title){
+                res.forEach(role => {
+                    // console.log("role title: ",role.title)
+                    // console.log("answer.role ",answer.role)
+                    if (answer.role[0] === role.title) {
                         roleID = role.role_id;
                     }
                 });
-                console.log("roleID: ",roleID);
+                // console.log("roleID: ",roleID);
                 var queryAdd = "INSERT INTO employee (first_name, last_name, role_id) VALUE (?,?,?)";
-                connection.query(queryAdd,[answer.first_name, answer.last_name, roleID],function(err,result){
+                connection.query(queryAdd, [answer.first_name, answer.last_name, roleID], function (err, result) {
                     if (err) throw err;
                     runSearch();
                     displayEmployees()
@@ -171,56 +171,110 @@ function AddEmployee() {
 // function to Remove Employee
 function RemoveEmployee() {
     inquirer
-    .prompt([
-        {
-            name: "first_name",
-            type: "input",
-            message: "What's the first name of employee who was fired/quit?"
-        },
-        {
-            name: "last_name",
-            type: "input",
-            message: "What's the last name of employee who was fired/quit?"
-        }
-    ])
-    .then(function (answer) {
-        var queryValidateRole = "SELECT * FROM employee";
+        .prompt([
+            {
+                name: "first_name",
+                type: "input",
+                message: "What's the first name of employee who was fired/quit?"
+            },
+            {
+                name: "last_name",
+                type: "input",
+                message: "What's the last name of employee who was fired/quit?"
+            }
+        ])
+        .then(function (answer) {
+            var queryValidateRole = "SELECT * FROM employee";
             connection.query(queryValidateRole, function (err, res) {
-                if(err) throw err;
+                if (err) throw err;
                 let employeeID = 0;
-                res.forEach(employee => { 
-                    console.log("ans_first: ",answer.first_name);
-                    console.log("emp.first: ",employee.first_name);
-                    console.log("ans_las: ",answer.last_name);
-                    console.log("emp_last: ",employee.last_name,"-------");
-                    if(answer.first_name === employee.first_name && answer.last_name === employee.last_name){
+                res.forEach(employee => {
+                    // console.log("ans_first: ",answer.first_name);
+                    // console.log("emp.first: ",employee.first_name);
+                    // console.log("ans_las: ",answer.last_name);
+                    // console.log("emp_last: ",employee.last_name,"-------");
+                    if (answer.first_name === employee.first_name && answer.last_name === employee.last_name) {
                         console.log("Jump into here")
                         employeeID = employee.employee_id;
                     }
                 });
                 // console.log("empID: ",employeeID);
                 var queryDelete = "DELETE FROM employee WHERE employee_id = ?";
-                connection.query(queryDelete,employeeID,function(err,result){
+                connection.query(queryDelete, employeeID, function (err, result) {
                     if (err) throw err;
-                    displayEmployees();
+                    // displayEmployees();
+                    runSearch();
                 });
             });
-    });
+        });
 }
 // function to Update Employee Role
 function UpdateRole() {
-
+    inquirer
+        .prompt([
+            {
+                name: "first_name",
+                type: "input",
+                message: "What's the first name of employee you want to change role?"
+            },
+            {
+                name: "last_name",
+                type: "input",
+                message: "What's the last name of employee you want to change role?"
+            },
+            {
+                name: "role",
+                type: "checkbox",
+                message: "Which title to be changed to?",
+                choices: [
+                    "Vice_President",
+                    "Engineer",
+                    "Doctor"
+                ]
+            }
+        ])
+        .then(function (answer) {
+            var queryValidateName = "SELECT * FROM employee";
+            connection.query(queryValidateName, function (err, res) {
+                if (err) throw err;
+                let employeeID = 0;
+                res.forEach(employee => {
+                    if (answer.first_name === employee.first_name && answer.last_name === employee.last_name) {
+                        console.log("Jump into here")
+                        employeeID = employee.employee_id;
+                    }
+                    var queryValidateRole = "SELECT * FROM role";
+                    connection.query(queryValidateRole, function (err, res) {
+                        if (err) throw err;
+                        let roleID = 0;
+                        res.forEach(role => {
+                            // console.log("role title: ",role.title)
+                            // console.log("answer.role ",answer.role)
+                            if (answer.role[0] === role.title) {
+                                roleID = role.role_id;
+                            }
+                        });
+                        console.log("role_id: ", roleID, " employee_id: ", employeeID)
+                        var queryUpdateRole = "UPDATE employee SET role_id = ? WHERE employee_id = ?";
+                        connection.query(queryUpdateRole, [roleID, employeeID], function (err, result) {
+                            if (err) throw err
+                            runSearch();
+                        })
+                    })
+                });
+            })
+        })
 }
 // function to Update Employee Manager
 function UpdateManager() {
 
 }
 
-function test(){
+function test() {
     var query = "SELECT * FROM role";
     connection.query(query, function (err, res) {
         if (err) throw err;
-        console.log("test: ",res[0].role_id)
+        console.log("test: ", res[0].role_id)
         runSearch()
     });
 }
